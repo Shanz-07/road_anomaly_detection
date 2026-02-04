@@ -1,0 +1,16 @@
+body {
+  background:#020617; color:#e5e7eb; font-family: Arial; padding:20px;
+}
+h1 { text-align:center; }
+.container { display:grid; grid-template-columns:2fr 1fr; gap:15px; }
+table { width:100%; border-collapse: collapse; }
+td,th { padding:8px; border-bottom:1px solid #334155; }
+video { width:100%; border-radius:10px; margin-bottom:10px; }
+button { background:#2563eb; color:white; border:none; padding:6px; border-radius:6px; cursor:pointer; }
+button:hover { background:#1d4ed8; }
+.logout { position:fixed; top:10px; right:10px; color:white; }
+.login-body { display:flex; justify-content:center; align-items:center; height:100vh; }
+.login-card { background:#020617; padding:30px; border-radius:12px; }
+.login-card input, .login-card button { width:100%; margin:5px 0; padding:8px; }
+.stats { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.stat { background:#020617; padding:10px; border-radius:8px; }

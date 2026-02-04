@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anomaly Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>🚨 Anomaly Detection Dashboard</h1>
+  <a href="/logout" class="logout">Logout</a>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="filters">
+    <select id="classFilter">
+      <option value="">All Classes</option>
+    </select>
+    <input type="date" id="dateFilter">
+  </div>
+
+  <div class="container">
+    <table id="logTable">
+      <thead>
+        <tr><th>Time</th><th>Class</th><th>Confidence</th><th>Clip</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="right">
+      <video id="player" controls></video>
+      <div id="clips"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
