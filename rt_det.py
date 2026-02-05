@@ -6,10 +6,11 @@ import queue
 from datetime import datetime
 from collections import deque
 from ultralytics import YOLO
+import subprocess
 
 # ---------------- CONFIG ----------------
-MODEL_PATH = "best.pt"
-VIDEO_PATH = "trained_stuff/videos/vid245.mp4"
+MODEL_PATH = "best_ncnn_model"
+VIDEO_PATH = 0
 CONF_THRESH = 0.4
 PRE_BUFFER_SECONDS = 2   
 POST_BUFFER_SECONDS = 3  
@@ -41,24 +42,56 @@ post_buffer_max = int(fps * POST_BUFFER_SECONDS)
 frame_buffer = deque(maxlen=pre_buffer_max) 
 
 save_queue = queue.Queue()
-
 def file_writer_worker():
-    """Background worker to save video clips."""
     while True:
         item = save_queue.get()
-        if item is None: 
+        if item is None:
             save_queue.task_done()
             break
-        
-        path, frames, fps, size = item
-        # Use 'mp4v' - best compatibility for Pi
-        out = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*"avc1"), fps, size)
+
+        mp4_path, frames, fps, size = item
+        if fps <= 1:
+            fps = 25
+
+        width, height = size
+
+        # FFmpeg: raw frames → MP4 (H.264 / avc1)
+        proc = subprocess.Popen(
+            [
+                "ffmpeg",
+                "-y",
+
+                # input from stdin
+                "-f", "rawvideo",
+                "-pix_fmt", "bgr24",
+                "-s", f"{width}x{height}",
+                "-r", str(fps),
+                "-i", "-",
+
+                # output codec
+                "-c:v", "libx264",
+                "-profile:v", "baseline",
+                "-level", "3.0",
+                "-pix_fmt", "yuv420p",
+                "-movflags", "+faststart",
+
+                mp4_path
+            ],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
 
         for f in frames:
-            out.write(f)
-        out.release()
-        print(f"✅ Clip finalized and saved: {path}")
+            proc.stdin.write(f.tobytes())
+
+        proc.stdin.close()
+        proc.wait()
+
+        print("✅ MP4 (avc1) saved:", mp4_path)
         save_queue.task_done()
+
+
 
 worker_thread = threading.Thread(target=file_writer_worker, daemon=True)
 worker_thread.start()
